@@ -25,6 +25,7 @@ import { setupMeetingStatsRoutes, setupMeetingStatsSocket } from './modules/meet
 import { setupMeetingBooking } from './modules/meetingBooking.js';
 import { setupMeetingActivity } from './modules/meetingActivity.js'; // New import
 import { setupMeetingParticipantStatsRoutes } from './modules/meetingParticipantStats.js';
+import meetingInvitesRouter from './server/routes/meetingInvites.js';
 
 // Import the database connection
 import mongoose from 'mongoose';
@@ -47,6 +48,9 @@ setupDatabase();
 
 // Setup auth routes (this now includes Google OAuth routes)
 setupAuthRoutes(app);
+
+// Setup meeting invites routes
+app.use('/api', meetingInvitesRouter);
 
 // Setup Socket.IO and meeting routes
 const { io, setupMeetingRoutes } = setupSocketIO(server);

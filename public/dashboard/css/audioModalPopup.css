@@ -168,6 +168,8 @@
             pointer-events: none;
             transition: all 0.3s ease;
             font-size: 16px;
+            background: transparent;
+            padding: 0;
         }
 
         .text-input:focus + .field-label,
@@ -179,7 +181,76 @@
             padding: 4px 8px;
             border-radius: 8px;
             color: white;
+            font-weight: 600;
         }
+
+/* Enhanced input field styling for join meeting modal */
+.text-input {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.text-input:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Error message styling for join modal */
+.error-message {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #ff6b6b;
+    display: none;
+    animation: errorSlideIn 0.3s ease;
+}
+
+@keyframes errorSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced button loading states */
+.control-button.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.control-button .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.control-button.loading .loading-spinner {
+    display: inline-block;
+}
+
+.control-button.loading i:not(.loading-spinner) {
+    display: none;
+}
 
         /* Email Input with Autocomplete */
         .email-field-wrapper {

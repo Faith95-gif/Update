@@ -756,6 +756,136 @@
 .remove-participant:hover i {
     transform: rotate(90deg);
 }
+
+/* Toast notification styles */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.3s ease;
+}
+
+.toast.success {
+    background: #10b981;
+    color: white;
+}
+
+.toast.error {
+    background: #ef4444;
+    color: white;
+}
+
+/* Enhanced copy button styles */
+.copy-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+
+/* Meeting ID and Link display improvements */
+.meeting-id-display,
+.meeting-link-display {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.meeting-id-display {
+    text-align: center;
+    font-size: 18px;
+}
+
+.meeting-link-display {
+    font-size: 14px;
+}
+
+/* Loading state for buttons */
+.start-meeting-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.start-meeting-btn.loading .loading-spinner {
+    display: inline-block;
+}
+
+.start-meeting-btn.loading #videoIcon {
+    display: none;
+}
+
+/* Enhanced participant item styling */
+.participant-item {
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+}
+
+.participant-item:hover {
+    background: rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: translateX(4px);
+}
+
+/* Email chip animations */
+.email-chip {
+    animation: chipSlideIn 0.3s ease;
+}
+
+@keyframes chipSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Error message improvements */
+.error-message.show {
+    animation: errorSlideIn 0.3s ease;
+}
+
+@keyframes errorSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success message improvements */
+.success-message.show {
+    animation: successSlideIn 0.3s ease;
+}
+
+@keyframes successSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 /* Checkbox Group Styles */
 .checkbox-group {
     display: flex;

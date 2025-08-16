@@ -502,6 +502,212 @@
         .start-meeting-share.glowing {
             animation: glow 2s ease-in-out infinite;
         }
+
+/* Enhanced input field styling */
+.input-field:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Character count styling improvements */
+.character-count {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+    text-align: right;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+.character-count.warning {
+    color: #ffa726;
+}
+
+.character-count.danger {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+/* Enhanced email chip styling */
+.email-chip {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    animation: chipSlideIn 0.3s ease;
+}
+
+@keyframes chipSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.email-chip:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.chip-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.email-text {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+}
+
+.remove-chip {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    opacity: 0.8;
+    font-size: 10px;
+}
+
+.remove-chip:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Error message styling for screen share modal */
+.error-message {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.error-message.show {
+    opacity: 1;
+    animation: errorSlideIn 0.3s ease;
+}
+
+@keyframes errorSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.error-message::before {
+    content: '⚠️';
+    font-size: 14px;
+}
+
+/* Enhanced add email button */
+.add-email-btn-screenShare:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(102, 126, 234, 0.6);
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.add-email-btn-screenShare:active {
+    transform: translateY(-1px);
+}
+
+.add-email-btn-screenShare:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+/* Meeting preview enhancements */
+.meeting-preview {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.meeting-preview:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.meeting-preview h4 {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.meeting-preview h4::before {
+    content: '📋';
+    font-size: 20px;
+}
+
+.meeting-preview p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.meeting-preview p strong {
+    color: white;
+    font-weight: 600;
+}
+
+.meeting-preview span {
+    color: #a5b4fc;
+    font-weight: 600;
+}
         /* Character count styling */
 .character-count {
     font-size: 12px;
