@@ -756,3 +756,112 @@
 .remove-participant:hover i {
     transform: rotate(90deg);
 }
+/* Checkbox Group Styles */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-group:hover {
+    background: rgba(102, 126, 234, 0.08);
+    border-color: rgba(102, 126, 234, 0.15);
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #475569;
+    border-radius: 6px;
+    background: #334155;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+}
+
+.checkbox-group input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.checkbox-group input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+}
+
+.checkbox-group input[type="checkbox"]:hover {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+.checkbox-group label {
+    color: #e2e8f0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.checkbox-group label:hover {
+    color: #f1f5f9;
+}
+
+/* Responsive adjustments for checkbox groups */
+@media (max-width: 480px) {
+    .checkbox-group {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .checkbox-group label {
+        font-size: 13px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Animation for checkbox state changes */
+.checkbox-group input[type="checkbox"] {
+    animation: checkboxPulse 0.3s ease;
+}
+
+@keyframes checkboxPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Additional spacing for multiple checkbox groups */
+.checkbox-group + .checkbox-group {
+    margin-top: 8px;
+}
+
+/* Focus styles for better accessibility */
+.checkbox-group:focus-within {
+    background: rgba(102, 126, 234, 0.08);
+    border-color: rgba(102, 126, 234, 0.2);
+}
