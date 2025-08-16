@@ -594,14 +594,41 @@
                         <!-- Selected email chips will appear here -->
                     </div>
                 </div>
-<div class="checkbox-group">
-                    <input type="checkbox" id="startWithVideoOffScreenShare">
-                    <label for="startWithVideoOff">Start with video off</label>
-                </div>
-                  <div class="checkbox-group">
-                    <input type="checkbox" id="autoStartScreenShareScreenShare">
-                    <label for="autoStartScreenShare">Auto-start screen sharing</label>
-                </div>
+  <!-- Meeting ID Display Section -->
+      <div class="meeting-id-section">
+        <label class="input-label">Meeting ID:</label>
+        <div class="meeting-id-container">
+           <i class="fas fa-pen-nib meeting-id-icon"></i>  
+          <input 
+            type="text" 
+            class="meeting-id-display" 
+            id="meetingIdDisplay" 
+            placeholder="Meeting ID will appear here..." 
+            readonly
+          >
+          <button class="copy-btn" id="copyMeetingIdBtn" onclick="copyMeetingId()" title="Copy Meeting ID">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Meeting Link Display Section -->
+      <div class="meeting-link-section">
+        <label class="input-label">Join Link:</label>
+        <div class="meeting-link-container">
+          <i class="fas fa-link meeting-link-icon"></i>
+          <input 
+            type="text" 
+            class="meeting-link-display" 
+            id="meetingLinkDisplay" 
+            placeholder="Join link will appear here..." 
+            readonly
+          >
+          <button class="copy-btn" id="copyMeetingLinkBtn" onclick="copyMeetingLink()" title="Copy Join Link">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
                 <div class="meeting-preview" id="meetingPreview" style="display: none;">
                     <h4>Meeting Preview</h4>
                     <p><strong>Title:</strong> <span id="previewTitle">My Meeting</span></p>
