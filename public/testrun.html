@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Meeting Form</title>
+    <style>
+        .meeting-form {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-secondary {
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="meeting-form">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #1f2937;">Create New Meeting</h2>
+        
+        <form id="createMeetingForm" onsubmit="event.preventDefault(); createMeeting();">
+            <!-- Meeting Name Input -->
+            <div class="form-group">
+                <label for="meetingNameInput" class="form-label">Meeting Name *</label>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="meetingNameInput" 
+                        class="form-input" 
+                        placeholder="Enter meeting name..."
+                        maxlength="100"
+                        required
+                    >
+                    <button 
+                        type="button" 
+                        class="btn-secondary" 
+                        onclick="generateRandomMeetingName()"
+                        title="Generate random name"
+                    >
+                        🎲
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn-secondary" 
+                        onclick="clearMeetingName()"
+                        title="Clear name"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <div class="form-hint">Give your meeting a descriptive name</div>
+            </div>
+            
+            <!-- Meeting Options -->
+            <div class="form-group">
+                <label class="form-label">Meeting Options</label>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="startWithVideoOff">
+                    <label for="startWithVideoOff">Start with video off</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="autoStartScreenShare">
+                    <label for="autoStartScreenShare">Auto-start screen sharing</label>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="createError" class="error-message"></div>
+            
+            <!-- Create Meeting Button -->
+            <button type="submit" class="btn-primary" id="createMeetingBtn">
+                <span id="createLoading" class="loading-spinner"></span>
+                <span id="createButtonText">Create Meeting</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Your updated createMeeting function goes here
+        async function createMeeting() {
+            showLoading('createLoading', true);
+
+            try {
+                const meetingNameInput = document.getElementById('meetingNameInput');
+                const videoOffCheckbox = document.getElementById('startWithVideoOff');
+                const screenShareCheckbox = document.getElementById('autoStartScreenShare');
+                
+                const meetingName = meetingNameInput ? meetingNameInput.value.trim() : '';
+                const startWithVideoOff = videoOffCheckbox ? videoOffCheckbox.checked : false;
+                const autoStartScreenShare = screenShareCheckbox ? screenShareCheckbox.checked : false;
+                
+                if (!meetingName) {
+                    throw new Error('Please enter a meeting name');
+                }
+
+                const response = await fetch('/api/create-meeting', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        meetingName: meetingName,
+                        options: {
+                            startWithVideoOff: startWithVideoOff,
+                            autoStartScreenShare: autoStartScreenShare
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store options for the meeting
+                    sessionStorage.setItem('customMeetingName', meetingName);
+                    sessionStorage.setItem('fromCreateForm', 'true');
+                    
+                    if (startWithVideoOff) {
+                        sessionStorage.setItem('autoStopVideo', 'true');
+                    }
+                    
+                    // Build the complete URL with parameters
+                    let hostUrl;
+                    if (data.hostUrl.startsWith('http')) {
+                        // hostUrl is already a complete URL
+                        hostUrl = new URL(data.hostUrl);
+                    } else {
+                        // hostUrl is a relative path, make it absolute
+                        hostUrl = new URL(data.hostUrl, window.location.origin);
+                    }
+                    
+                    hostUrl.searchParams.set('name', encodeURIComponent(meetingName));
+                    
+                    if (autoStartScreenShare) {
+                        hostUrl.searchParams.set('autoScreenShare', 'true');
+                    }
+                    
+                    window.location.href = hostUrl.toString();
+                } else {
+                    throw new Error(data.error || 'Failed to create meeting');
+                }
+            } catch (error) {
+                console.error('Error creating meeting:', error);
+                showError('createError', error.message);
+                showLoading('createLoading', false);
+            }
+        }
+
+        function clearMeetingName() {
+            const meetingNameInput = document.getElementById('meetingNameInput');
+            if (meetingNameInput) {
+                meetingNameInput.value = '';
+                meetingNameInput.focus();
+            }
+        }
+
+        function generateRandomMeetingName() {
+            const adjectives = ['Quick', 'Daily', 'Weekly', 'Team', 'Project', 'Strategy', 'Planning', 'Review'];
+            const nouns = ['Meeting', 'Standup', 'Sync', 'Discussion', 'Call', 'Session', 'Check-in', 'Huddle'];
+            
+            const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            const timestamp = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            const generatedName = `${randomAdjective} ${randomNoun} - ${timestamp}`;
+            
+            const meetingNameInput = document.getElementById('meetingNameInput');
+            if (meetingNameInput) {
+                meetingNameInput.value = generatedName;
+            }
+            
+            return generatedName;
+        }
+
+        function showLoading(loadingId, show) {
+            const loadingEl = document.getElementById(loadingId);
+            const buttonEl = document.getElementById('createMeetingBtn');
+            const buttonTextEl = document.getElementById('createButtonText');
+            
+            if (loadingEl) {
+                loadingEl.style.display = show ? 'inline-block' : 'none';
+            }
+            
+            if (buttonEl) {
+                buttonEl.disabled = show;
+            }
+            
+            if (buttonTextEl) {
+                buttonTextEl.textContent = show ? 'Creating Meeting...' : 'Create Meeting';
+            }
+        }
+
+        function showError(errorId, message) {
+            const errorEl = document.getElementById(errorId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    errorEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Auto-focus the meeting name input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const meetingNameInput = document.getElementById('meetingNameInput');
+            if (meetingNameInput) {
+                meetingNameInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
+<script>
+  // Simplified approach that avoids URL constructor issues
+async function createMeeting() {
+    showLoading('createLoading', true);
+
+    try {
+        // Get the meeting name from the input field
+        const meetingNameInput = document.getElementById('meetingNameInput');
+        const meetingName = meetingNameInput ? meetingNameInput.value.trim() : '';
+        
+        // Validate meeting name
+        if (!meetingName) {
+            throw new Error('Please enter a meeting name');
+        }
+
+        const response = await fetch('/api/create-meeting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                meetingName: meetingName
+            })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Store the meeting name for the host meeting to use
+            sessionStorage.setItem('customMeetingName', meetingName);
+            sessionStorage.setItem('fromCreateForm', 'true');
+            
+            // Simple approach: append query parameters to the URL string
+            const encodedName = encodeURIComponent(meetingName);
+            const separator = data.hostUrl.includes('?') ? '&' : '?';
+            const finalUrl = `${data.hostUrl}${separator}name=${encodedName}`;
+            
+            window.location.href = finalUrl;
+        } else {
+            throw new Error(data.error || 'Failed to create meeting');
+        }
+    } catch (error) {
+        console.error('Error creating meeting:', error);
+        showError('createError', error.message);
+        showLoading('createLoading', false);
+    }
+}
+
+// Enhanced version with options (simplified)
+async function createMeetingWithOptions() {
+    showLoading('createLoading', true);
+
+    try {
+        const meetingNameInput = document.getElementById('meetingNameInput');
+        const videoOffCheckbox = document.getElementById('startWithVideoOff');
+        const screenShareCheckbox = document.getElementById('autoStartScreenShare');
+        
+        const meetingName = meetingNameInput ? meetingNameInput.value.trim() : '';
+        const startWithVideoOff = videoOffCheckbox ? videoOffCheckbox.checked : false;
+        const autoStartScreenShare = screenShareCheckbox ? screenShareCheckbox.checked : false;
+        
+        if (!meetingName) {
+            throw new Error('Please enter a meeting name');
+        }
+
+        const response = await fetch('/api/create-meeting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                meetingName: meetingName,
+                options: {
+                    startWithVideoOff: startWithVideoOff,
+                    autoStartScreenShare: autoStartScreenShare
+                }
+            })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Store options for the meeting
+            sessionStorage.setItem('customMeetingName', meetingName);
+            sessionStorage.setItem('fromCreateForm', 'true');
+            
+            if (startWithVideoOff) {
+                sessionStorage.setItem('autoStopVideo', 'true');
+            }
+            
+            // Build URL parameters manually
+            const params = new URLSearchParams();
+            params.set('name', meetingName);
+            
+            if (autoStartScreenShare) {
+                params.set('autoScreenShare', 'true');
+            }
+            
+            const separator = data.hostUrl.includes('?') ? '&' : '?';
+            const finalUrl = `${data.hostUrl}${separator}${params.toString()}`;
+            
+            window.location.href = finalUrl;
+        } else {
+            throw new Error(data.error || 'Failed to create meeting');
+        }
+    } catch (error) {
+        console.error('Error creating meeting:', error);
+        showError('createError', error.message);
+        showLoading('createLoading', false);
+    }
+}
+</script>
