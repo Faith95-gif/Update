@@ -1418,15 +1418,6 @@ socket.on('join-meeting', async (data) => {
         socket.emit('action-error', { message: 'Insufficient permissions' });
         return;
       }
-        
-        // Emit participant left event for activity tracking
-        socket.emit('participant-left-meeting', {
-          meetingId: meetingId,
-          userId: socket.userId || socket.id,
-          finalMeetingName: meeting.name,
-          leaveTime: new Date().toISOString()
-        });
-        
 
       const targetParticipant = meeting.participants.get(targetSocketId);
       if (targetParticipant) {
@@ -1760,6 +1751,30 @@ socket.on('join-meeting', async (data) => {
       });
 
       console.log(`Host ${socket.id} ${muteAll ? 'muted' : 'unmuted'} all participants in meeting ${participantInfo.meetingId}`);
+    });
+
+    socket.on('update-meeting-name', (data) => {
+      const { meetingId, newName } = data;
+      const meeting = meetings.get(meetingId);
+      
+      if (meeting) {
+        meeting.name = newName;
+        console.log(`📝 Meeting name updated: ${meeting.id} -> "${newName}"`);
+        
+        // Broadcast the updated name to all participants in the meeting
+        socket.to(meetingId).emit('meeting-name-updated', {
+          meetingId,
+          newName,
+          updatedBy: meeting.host
+        });
+        
+        // Also emit to the host who made the change
+        socket.emit('meeting-name-updated', {
+          meetingId,
+          newName,
+          updatedBy: meeting.host
+        });
+      }
     });
 
     socket.on('disconnect', (reason) => {
