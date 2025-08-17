@@ -880,6 +880,36 @@ socket.on('join-meeting', async (data) => {
   console.log(`Participant ${participantName} joined meeting ${meetingId} ("${meeting.getMeetingName()}")`);
 });
 
+    // Handle participant joining
+    socket.on('participant-joined', (data) => {
+      const { meetingId, participantName } = data;
+      const meeting = meetings.get(meetingId);
+      
+      if (meeting) {
+        socket.join(meetingId);
+        meeting.participants.set(socket.id, {
+          name: participantName,
+          joinedAt: new Date()
+        });
+        
+        console.log(`Participant ${participantName} joined meeting ${meetingId}`);
+        
+        // Send current meeting info to participant
+        socket.emit('meeting-info', {
+          meetingId: meeting.id,
+          meetingName: meeting.name,
+          participantCount: meeting.participants.size
+        });
+        
+        // Notify all participants about the new joiner
+        io.to(meetingId).emit('participant-update', {
+          type: 'joined',
+          participant: participantName,
+          totalParticipants: meeting.participants.size
+        });
+      }
+    });
+
     socket.on('toggle-meeting-lock', (data) => {
       const validation = validateData(data, ['isLocked']);
       if (!validation.isValid) {
@@ -1418,6 +1448,15 @@ socket.on('join-meeting', async (data) => {
         socket.emit('action-error', { message: 'Insufficient permissions' });
         return;
       }
+        
+        // Emit participant left event for activity tracking
+        socket.emit('participant-left-meeting', {
+          meetingId: meetingId,
+          userId: socket.userId || socket.id,
+          finalMeetingName: meeting.name,
+          leaveTime: new Date().toISOString()
+        });
+        
 
       const targetParticipant = meeting.participants.get(targetSocketId);
       if (targetParticipant) {
