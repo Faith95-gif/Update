@@ -16,8 +16,19 @@ try {
             rejectUnauthorized: false
         }
     });
+    
+    // Verify the transporter configuration
+    transporter.verify((error, success) => {
+        if (error) {
+            console.error('❌ Email transporter verification failed:', error);
+            transporter = null;
+        } else {
+            console.log('✅ Email transporter verified successfully');
+        }
+    });
 } catch (error) {
-    console.warn('⚠️ Email service not configured. Email notifications will be simulated.');
+    console.error('❌ Email service configuration failed:', error);
+    transporter = null;
 }
 
 // In-memory storage for meetings (in production, use a database)
@@ -36,11 +47,17 @@ function generateMeetingId() {
 // Send email invitation
 async function sendMeetingInvitation(email, meetingData, hostName) {
     if (!transporter) {
-        console.log(`📧 [SIMULATED] Email invitation sent to: ${email}`);
-        return { success: true, messageId: `sim_${Date.now()}` };
+        console.log(`📧 [SIMULATED] Email invitation would be sent to: ${email}`);
+        console.log(`📧 Meeting: ${meetingData.title}`);
+        console.log(`📧 Join URL: ${meetingData.joinUrl}`);
+        console.log(`📧 Meeting ID: ${meetingData.id}`);
+        return { success: true, messageId: `sim_${Date.now()}`, simulated: true };
     }
 
     try {
+        console.log(`📧 Sending real email invitation to: ${email}`);
+        console.log(`📧 Using transporter with user: ${process.env.SCHEDULER_EMAIL || 'convospace602@gmail.com'}`);
+        
         const mailOptions = {
             from: `"ConvoSpace" <${process.env.SCHEDULER_EMAIL || 'convospace602@gmail.com'}>`,
             to: email,
@@ -94,6 +111,7 @@ async function sendMeetingInvitation(email, meetingData, hostName) {
         };
 
         const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ Email sent successfully to ${email}:`, info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error(`Failed to send email to ${email}:`, error);
@@ -139,16 +157,23 @@ router.post('/create-meeting-with-invites', async (req, res) => {
                 try {
                     const result = await sendMeetingInvitation(email, meetingData, currentUser.name);
                     emailResults.push({ email, ...result });
-                    console.log(`📧 Email invitation result for ${email}:`, result);
+                    if (result.success) {
+                        console.log(`✅ Email invitation sent to ${email}: ${result.messageId}`);
+                    } else {
+                        console.error(`❌ Failed to send email to ${email}:`, result.error);
+                    }
                 } catch (error) {
                     emailResults.push({ email, success: false, error: error.message });
                     console.error(`❌ Failed to send email to ${email}:`, error);
                 }
             }
+            
+            // Log summary
+            const successfulEmails = emailResults.filter(r => r.success).length;
+            console.log(`📧 Email summary: ${successfulEmails}/${emailResults.length} invitations sent successfully`);
         }
 
         console.log(`✅ Meeting created: ${meetingName} (${finalMeetingId})`);
-        console.log(`📧 Email results:`, emailResults);
 
         res.json({
             success: true,

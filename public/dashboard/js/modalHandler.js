@@ -578,6 +578,7 @@ class DashboardModalHandler {
                 // Store meeting options
                 sessionStorage.setItem('customMeetingName', title);
                 sessionStorage.setItem('fromCreateForm', 'true');
+                sessionStorage.setItem('meetingId', data.meetingId);
                 
                 if (startWithVideoOff) {
                     sessionStorage.setItem('autoStopVideo', 'true');
@@ -586,6 +587,20 @@ class DashboardModalHandler {
                 if (autoStartScreenShare) {
                     sessionStorage.setItem('autoStartScreenShare', 'true');
                 }
+                
+                // Show email sending status if participants were added
+                if (this.participants.length > 0) {
+                    const emailResults = data.emailResults || [];
+                    const successfulEmails = emailResults.filter(r => r.success).length;
+                    const totalEmails = emailResults.length;
+                    
+                    if (successfulEmails > 0) {
+                        this.showSuccess(`Meeting created! Email invitations sent to ${successfulEmails}/${totalEmails} participants.`);
+                    } else if (totalEmails > 0) {
+                        this.showError(`Meeting created but failed to send email invitations. Please share the meeting link manually.`);
+                    }
+                }
+                
                 setTimeout(() => {
                     let hostUrl = `/host/${data.meetingId}?name=${encodeURIComponent(title)}`;
                     if (autoStartScreenShare) {
