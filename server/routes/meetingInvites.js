@@ -139,8 +139,10 @@ router.post('/create-meeting-with-invites', async (req, res) => {
                 try {
                     const result = await sendMeetingInvitation(email, meetingData, currentUser.name);
                     emailResults.push({ email, ...result });
+                    console.log(`📧 Email invitation result for ${email}:`, result);
                 } catch (error) {
                     emailResults.push({ email, success: false, error: error.message });
+                    console.error(`❌ Failed to send email to ${email}:`, error);
                 }
             }
         }

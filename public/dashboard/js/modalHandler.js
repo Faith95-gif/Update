@@ -583,8 +583,14 @@ class DashboardModalHandler {
                     sessionStorage.setItem('autoStopVideo', 'true');
                 }
 
+                if (autoStartScreenShare) {
+                    sessionStorage.setItem('autoStartScreenShare', 'true');
+                }
                 setTimeout(() => {
-                    const hostUrl = `/host/${data.meetingId}?name=${encodeURIComponent(title)}`;
+                    let hostUrl = `/host/${data.meetingId}?name=${encodeURIComponent(title)}`;
+                    if (autoStartScreenShare) {
+                        hostUrl += '&autoScreenShare=true';
+                    }
                     window.location.href = hostUrl;
                 }, 1500);
             } else {
