@@ -1753,30 +1753,6 @@ socket.on('join-meeting', async (data) => {
       console.log(`Host ${socket.id} ${muteAll ? 'muted' : 'unmuted'} all participants in meeting ${participantInfo.meetingId}`);
     });
 
-    socket.on('update-meeting-name', (data) => {
-      const { meetingId, newName } = data;
-      const meeting = meetings.get(meetingId);
-      
-      if (meeting) {
-        meeting.name = newName;
-        console.log(`📝 Meeting name updated: ${meeting.id} -> "${newName}"`);
-        
-        // Broadcast the updated name to all participants in the meeting
-        socket.to(meetingId).emit('meeting-name-updated', {
-          meetingId,
-          newName,
-          updatedBy: meeting.host
-        });
-        
-        // Also emit to the host who made the change
-        socket.emit('meeting-name-updated', {
-          meetingId,
-          newName,
-          updatedBy: meeting.host
-        });
-      }
-    });
-
     socket.on('disconnect', (reason) => {
       const participantInfo = participants.get(socket.id);
       

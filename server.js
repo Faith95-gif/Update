@@ -2,6 +2,11 @@ import dotenv from 'dotenv';
 // Load environment variables first
 dotenv.config();
 
+// Log environment variables for debugging
+console.log('📧 Email configuration:');
+console.log('SCHEDULER_EMAIL:', process.env.SCHEDULER_EMAIL ? '✓ Set' : '❌ Not set');
+console.log('SCHEDULER_EMAIL_PASSWORD:', process.env.SCHEDULER_EMAIL_PASSWORD ? '✓ Set' : '❌ Not set');
+
 import express from 'express';
 import http from 'http';
 import path from 'path';
