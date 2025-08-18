@@ -427,11 +427,16 @@ class DashboardModalHandler {
         this.renderParticipants();
         emailInput.value = '';
         this.hideError();
+        
+        console.log('✅ Participant added:', email);
+        console.log('Current participants:', this.participants);
     }
 
     removeParticipant(email) {
         this.participants = this.participants.filter(p => p !== email);
         this.renderParticipants();
+        console.log('❌ Participant removed:', email);
+        console.log('Current participants:', this.participants);
     }
 
     renderParticipants() {
@@ -486,11 +491,16 @@ class DashboardModalHandler {
         this.renderSelectedEmails();
         emailInput.value = '';
         this.hideScreenShareError();
+        
+        console.log('✅ Email added to screen share:', email);
+        console.log('Current selected emails:', this.selectedEmails);
     }
 
     removeEmailFromScreenShare(email) {
         this.selectedEmails = this.selectedEmails.filter(e => e !== email);
         this.renderSelectedEmails();
+        console.log('❌ Email removed from screen share:', email);
+        console.log('Current selected emails:', this.selectedEmails);
     }
 
     renderSelectedEmails() {
@@ -551,29 +561,53 @@ class DashboardModalHandler {
             return;
         }
 
+        console.log('📝 Creating meeting with participants:', this.participants);
+        console.log('📝 Meeting title:', title);
+        console.log('📝 Meeting options:', { startWithVideoOff, autoStartScreenShare });
+
         this.setButtonLoading(startBtn, true);
 
         try {
+            const requestData = {
+                meetingName: title,
+                meetingId: this.currentMeetingData?.id,
+                participants: this.participants, // This should contain the email addresses
+                options: {
+                    startWithVideoOff,
+                    autoStartScreenShare
+                }
+            };
+
+            console.log('📤 Sending request:', requestData);
+
             const response = await fetch('/api/create-meeting-with-invites', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    meetingName: title,
-                    meetingId: this.currentMeetingData?.id,
-                    participants: this.participants,
-                    options: {
-                        startWithVideoOff,
-                        autoStartScreenShare
-                    }
-                })
+                body: JSON.stringify(requestData)
             });
 
             const data = await response.json();
+            console.log('📥 Server response:', data);
 
-            if (response.ok) {
-                this.showSuccess('Meeting created successfully! Redirecting...');
+            if (response.ok && data.success) {
+                // Show email sending status if participants were added
+                if (this.participants.length > 0) {
+                    const emailResults = data.emailResults || [];
+                    const successfulEmails = emailResults.filter(r => r.success).length;
+                    const totalEmails = emailResults.length;
+                    
+                    if (successfulEmails > 0) {
+                        this.showSuccess(`Meeting created! Email invitations sent to ${successfulEmails}/${totalEmails} participants.`);
+                        console.log(`✅ Email invitations sent: ${successfulEmails}/${totalEmails}`);
+                    } else if (totalEmails > 0) {
+                        this.showError(`Meeting created but failed to send email invitations. Please share the meeting link manually.`);
+                        console.log(`❌ Failed to send email invitations`);
+                    }
+                } else {
+                    this.showSuccess('Meeting created successfully! Redirecting...');
+                }
                 
                 // Store meeting options
                 sessionStorage.setItem('customMeetingName', title);
@@ -588,19 +622,6 @@ class DashboardModalHandler {
                     sessionStorage.setItem('autoStartScreenShare', 'true');
                 }
                 
-                // Show email sending status if participants were added
-                if (this.participants.length > 0) {
-                    const emailResults = data.emailResults || [];
-                    const successfulEmails = emailResults.filter(r => r.success).length;
-                    const totalEmails = emailResults.length;
-                    
-                    if (successfulEmails > 0) {
-                        this.showSuccess(`Meeting created! Email invitations sent to ${successfulEmails}/${totalEmails} participants.`);
-                    } else if (totalEmails > 0) {
-                        this.showError(`Meeting created but failed to send email invitations. Please share the meeting link manually.`);
-                    }
-                }
-                
                 setTimeout(() => {
                     let hostUrl = `/host/${data.meetingId}?name=${encodeURIComponent(title)}`;
                     if (autoStartScreenShare) {
@@ -609,11 +630,11 @@ class DashboardModalHandler {
                     window.location.href = hostUrl;
                 }, 1500);
             } else {
-                throw new Error(data.error || 'Failed to create meeting');
+                throw new Error(data.error || data.message || 'Failed to create meeting');
             }
         } catch (error) {
-            console.error('Error creating meeting:', error);
-            this.showError(error.message);
+            console.error('❌ Error creating meeting:', error);
+            this.showError(`Failed to create meeting: ${error.message}`);
         } finally {
             this.setButtonLoading(startBtn, false);
         }
@@ -630,28 +651,36 @@ class DashboardModalHandler {
             return;
         }
 
+        console.log('📝 Creating screen share meeting with emails:', this.selectedEmails);
+        console.log('📝 Screen share title:', title);
+
         this.setButtonLoading(startBtn, true);
 
         try {
+            const requestData = {
+                meetingName: title,
+                meetingId: this.currentMeetingData?.id,
+                participants: this.selectedEmails, // This should contain the email addresses
+                options: {
+                    autoStartScreenShare: true,
+                    startWithVideoOff: false
+                }
+            };
+
+            console.log('📤 Sending screen share request:', requestData);
+
             const response = await fetch('/api/create-meeting-with-invites', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    meetingName: title,
-                    meetingId: this.currentMeetingData?.id,
-                    participants: this.selectedEmails,
-                    options: {
-                        autoStartScreenShare: true,
-                        startWithVideoOff: false
-                    }
-                })
+                body: JSON.stringify(requestData)
             });
 
             const data = await response.json();
+            console.log('📥 Screen share response:', data);
 
-            if (response.ok) {
+            if (response.ok && data.success) {
                 // Show email sending status if participants were added
                 if (this.selectedEmails.length > 0) {
                     const emailResults = data.emailResults || [];
@@ -659,7 +688,7 @@ class DashboardModalHandler {
                     const totalEmails = emailResults.length;
                     
                     if (successfulEmails > 0) {
-                        console.log(`📧 Email invitations sent to ${successfulEmails}/${totalEmails} participants`);
+                        console.log(`✅ Email invitations sent: ${successfulEmails}/${totalEmails} participants`);
                     }
                 }
                 
@@ -672,11 +701,11 @@ class DashboardModalHandler {
                 const hostUrl = `/host/${data.meetingId}?name=${encodeURIComponent(title)}&autoScreenShare=true`;
                 window.location.href = hostUrl;
             } else {
-                throw new Error(data.error || 'Failed to create meeting');
+                throw new Error(data.error || data.message || 'Failed to create meeting');
             }
         } catch (error) {
-            console.error('Error creating screen share meeting:', error);
-            this.showScreenShareError(error.message);
+            console.error('❌ Error creating screen share meeting:', error);
+            this.showScreenShareError(`Failed to create meeting: ${error.message}`);
         } finally {
             this.setButtonLoading(startBtn, false);
         }
@@ -777,6 +806,7 @@ class DashboardModalHandler {
             errorMessage.classList.add('show');
             setTimeout(() => errorMessage.classList.remove('show'), 5000);
         }
+        console.error('❌ Error:', message);
     }
 
     showSuccess(message) {
@@ -786,6 +816,7 @@ class DashboardModalHandler {
             successMessage.classList.add('show');
             setTimeout(() => successMessage.classList.remove('show'), 3000);
         }
+        console.log('✅ Success:', message);
     }
 
     showScreenShareError(message) {
@@ -795,6 +826,7 @@ class DashboardModalHandler {
             errorMessage.classList.add('show');
             setTimeout(() => errorMessage.classList.remove('show'), 5000);
         }
+        console.error('❌ Screen Share Error:', message);
     }
 
     hideScreenShareError() {
@@ -813,6 +845,7 @@ class DashboardModalHandler {
                 errorDiv.style.display = 'none';
             }, 5000);
         }
+        console.error('❌ Join Error:', message);
     }
 
     hideError() {
