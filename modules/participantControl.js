@@ -133,6 +133,18 @@ export function setupParticipantControl(app, io) {
         
         // Update participants list for hosts
         io.to('hosts').emit('participantsList', Array.from(participants.values()));
+        
+        // IMPORTANT: Update chat user registry with new name
+        // This ensures the chat system reflects the name change
+        if (global.chatUsers) {
+          global.chatUsers[socket.id] = trimmedName;
+          // Broadcast updated user list to all chat participants
+          io.emit('updateUsers', global.chatUsers);
+          console.log(`Updated chat name for ${socket.id}: ${trimmedName}`);
+        }
+        
+        // Also emit a direct chat name update event
+        socket.emit('updateChatName', trimmedName);
       } else {
         socket.emit('nameChangeResult', { 
           success: false, 

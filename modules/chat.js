@@ -53,6 +53,9 @@ export const setupChat = (app, io) => {
   // In-memory storage
   let users = {};
   let groups = {};
+  
+  // Make users globally accessible for participant control integration
+  global.chatUsers = users;
 
   // Chat socket handlers
   const setupChatSocketHandlers = (socket) => {
@@ -61,7 +64,19 @@ export const setupChat = (app, io) => {
 
     socket.on('register', (name) => {
       users[socket.id] = name;
+      // Update global reference
+      global.chatUsers = users;
       io.emit('updateUsers', users);
+    });
+    
+    // Handle name updates from participant control
+    socket.on('updateChatName', (newName) => {
+      if (newName && typeof newName === 'string' && newName.trim().length > 0) {
+        users[socket.id] = newName.trim();
+        global.chatUsers = users;
+        io.emit('updateUsers', users);
+        console.log(`Chat name updated for ${socket.id}: ${newName.trim()}`);
+      }
     });
 
     // Update configuration
